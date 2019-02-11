@@ -3,9 +3,11 @@
 #include <rand.h>
 #include "alpha.c"
 
+#include "C:\gbdk\libc\malloc.c" // gbdk is very broken
+
 #define WIDTH 20
 #define HEIGHT 18
-#define MINES 25
+#define MINES 80
 
 #define HIDDEN 0
 #define HIDDEN_MINE 1
@@ -13,14 +15,14 @@
 #define FLAGGED_MINE 3
 #define REVEALED 4
 
-UBYTE screen[WIDTH * HEIGHT];
-#define BOARD(i, j) (screen[i + (WIDTH * j)])
+UBYTE *board;
+#define BOARD(i, j) (board[i + (WIDTH * j)])
 
 #define P(button) (joypad() & button)
 
-#define UPDATE_SCREEN set_bkg_tiles(0, 0, WIDTH, 32, screen);
+#define DISPLAY(source) set_bkg_tiles(0, 0, WIDTH, HEIGHT, source);
 
-void plantMines(UBYTE number) {
+void plantMines(UBYTE *board, UBYTE number) {
 
 	UBYTE i;
 	UWORD x;
@@ -29,8 +31,8 @@ void plantMines(UBYTE number) {
 		do {
 			x = randw();
 			x = x % (WIDTH * HEIGHT);
-		} while (BOARD(x, 0) == HIDDEN_MINE);
-		BOARD(x, 0) = HIDDEN_MINE;
+		} while (board[x] == HIDDEN_MINE);
+		board[x] = HIDDEN_MINE;
 	}
 
 }
@@ -38,18 +40,21 @@ void plantMines(UBYTE number) {
 void main() {
 
 	//UBYTE i, j;
+	
+	board = malloc(WIDTH * HEIGHT * sizeof(UBYTE));
 
 	waitpad(0xFF);
 	initrand(clock());
 
 	DISPLAY_ON;
 	SHOW_BKG;
+	SHOW_SPRITES;
 
 	set_bkg_data(0, 63, alpha);
 
-	plantMines(MINES);
+	plantMines(board, MINES);
 
-	UPDATE_SCREEN;
+	DISPLAY(board);
 
 	while (1) {
 
