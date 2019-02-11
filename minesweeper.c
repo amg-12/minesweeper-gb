@@ -83,6 +83,17 @@ reveal(UWORD x, UWORD y) {
 		}
 		BOARD(x, y) = REVEALED + count;
 	}
+	if (BOARD(x, y) == REVEALED) { // recursively reveal everything around a 0
+		for (i = 0; i < 3; i++) {
+			for (j = 0; j < 3; j++) {
+				k = x + i - 1;
+				l = y + j - 1;
+				if (!IS_EDGE(k, l) && BOARD(k, l) == HIDDEN) {
+					reveal(k, l);
+				}
+			}
+		}
+	}
 
 }
 
@@ -136,7 +147,7 @@ void main() {
 
 	width = 20;
 	height = 18;
-	mines = 80;
+	mines = 50;
 
 	widthheight = width * height;
 
