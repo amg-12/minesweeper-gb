@@ -25,6 +25,8 @@ UBYTE playerY = 0;
 UBYTE *board;
 #define BOARD(i, j) (board[i + (width * j)])
 
+#define IS_EDGE(x, y) (x == -1 || x == width || y == -1 || y == height)
+
 #define P(button) (joypad() & button)
 
 #define MOVE_SPRITE(sprite, x, y) move_sprite(sprite, (x + 1) * 8, (y + 2) * 8);
@@ -73,10 +75,8 @@ reveal(UWORD x, UWORD y) {
 		for (i = 0; i < 3; i++) {
 			for (j = 0; j < 3; j++) {
 				k = x + i - 1;
-				k = k == width ? -1 : k;
 				l = y + j - 1;
-				l = l == height ? -1 : l;
-				if (BOARD(k, l) == HIDDEN_MINE || BOARD(k, l) == FLAGGED_MINE) {
+				if (!IS_EDGE(k, l) && (BOARD(k, l) == HIDDEN_MINE || BOARD(k, l) == FLAGGED_MINE)) {
 					count++;
 				}
 			}
