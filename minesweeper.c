@@ -15,12 +15,18 @@
 #define FLAGGED_MINE 3
 #define REVEALED 4
 
+UBYTE width;
+UBYTE height;
+UBYTE mines;
+
+UWORD widthheight;
+
 UBYTE *board;
-#define BOARD(i, j) (board[i + (WIDTH * j)])
+#define BOARD(i, j) (board[i + (width * j)])
 
 #define P(button) (joypad() & button)
 
-#define DISPLAY(source) set_bkg_tiles(0, 0, WIDTH, HEIGHT, source);
+#define DISPLAY(source) set_bkg_tiles(0, 0, width, height, source);
 
 void plantMines(UBYTE *board, UBYTE number) {
 
@@ -30,7 +36,7 @@ void plantMines(UBYTE *board, UBYTE number) {
 	for (i = 0; i < number; i++) {
 		do {
 			x = randw();
-			x = x % (WIDTH * HEIGHT);
+			x = x % (widthheight);
 		} while (board[x] == HIDDEN_MINE);
 		board[x] = HIDDEN_MINE;
 	}
@@ -40,8 +46,14 @@ void plantMines(UBYTE *board, UBYTE number) {
 void main() {
 
 	//UBYTE i, j;
+
+	width = 20;
+	height = 18;
+	mines = 80;
+
+	widthheight = width * height;
 	
-	board = malloc(WIDTH * HEIGHT * sizeof(UBYTE));
+	board = malloc(widthheight * sizeof(UBYTE));
 
 	waitpad(0xFF);
 	initrand(clock());
@@ -52,7 +64,7 @@ void main() {
 
 	set_bkg_data(0, 63, alpha);
 
-	plantMines(board, MINES);
+	plantMines(board, mines);
 
 	DISPLAY(board);
 
