@@ -12,7 +12,8 @@
 #define HIDDEN_MINE 1
 #define FLAGGED 2
 #define FLAGGED_MINE 3
-#define REVEALED 4
+#define REVEALED_MINE 4
+#define REVEALED 16
 
 UBYTE width;
 UBYTE height;
@@ -59,6 +60,49 @@ void waitAndBlink(UBYTE sprite) {
 
 }
 
+reveal(UWORD x, UWORD y) {
+
+	UBYTE i, j;
+	UWORD k, l;
+	UBYTE count = 0;
+
+	if (BOARD(x, y) == HIDDEN_MINE) {
+		BOARD(x, y) = REVEALED_MINE;
+	}
+	else if (BOARD(x, y) == HIDDEN) {
+		for (i = 0; i < 3; i++) {
+			for (j = 0; j < 3; j++) {
+				k = x + i - 1;
+				k = k == width ? -1 : k;
+				l = y + j - 1;
+				l = l == height ? -1 : l;
+				if (BOARD(k, l) == HIDDEN_MINE || BOARD(k, l) == FLAGGED_MINE) {
+					count++;
+				}
+			}
+		}
+		BOARD(x, y) = REVEALED + count;
+	}
+
+}
+
+void flag(UWORD x, UWORD y) {
+	switch (BOARD(x, y)) {
+		case HIDDEN:
+			BOARD(x, y) = FLAGGED;
+			break;
+		case FLAGGED:
+			BOARD(x, y) = HIDDEN;
+			break;
+		case HIDDEN_MINE:
+			BOARD(x, y) = FLAGGED_MINE;
+			break;
+		case FLAGGED_MINE:
+			BOARD(x, y) = HIDDEN_MINE;
+			break;
+	}
+}
+
 void handleInput() {
 
 	if (P(J_UP)) {
@@ -73,8 +117,15 @@ void handleInput() {
 	if (P(J_RIGHT)) {
 		playerX++;
 	}
+	if (P(J_B)) {
+		flag(playerX, playerY);
+	}
+	if (P(J_A)) {
+		reveal(playerX, playerY);
+	}
 
 	MOVE_SPRITE(0, playerX, playerY);
+	DISPLAY(board);
 	delay(INPUT_DELAY);
 
 }
