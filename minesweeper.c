@@ -16,6 +16,7 @@
 #define REVEALED_MINE 4
 #define REVEALED 6
 
+UBYTE started;
 UBYTE width;
 UBYTE height;
 UBYTE mines;
@@ -34,12 +35,12 @@ UBYTE *board;
 
 #define DISPLAY(source) set_bkg_tiles(0, 0, width, height, source);
 
-void plantMines(UBYTE *board, UBYTE number) {
+void plantMines() {
 
 	UBYTE i;
 	UWORD x;
 
-	for (i = 0; i < number; i++) {
+	for (i = 0; i < mines; i++) {
 		do {
 			x = randw();
 			x = x % (widthheight);
@@ -72,6 +73,7 @@ reveal(UWORD x, UWORD y) {
 	if (BOARD(x, y) == HIDDEN_MINE) {
 		BOARD(x, y) = REVEALED_MINE;
 	}
+
 	else if (BOARD(x, y) == HIDDEN) {
 		for (i = 0; i < 3; i++) {
 			for (j = 0; j < 3; j++) {
@@ -84,6 +86,7 @@ reveal(UWORD x, UWORD y) {
 		}
 		BOARD(x, y) = REVEALED + count;
 	}
+
 	if (BOARD(x, y) == REVEALED) { // recursively reveal everything around a 0
 		for (i = 0; i < 3; i++) {
 			for (j = 0; j < 3; j++) {
@@ -99,6 +102,7 @@ reveal(UWORD x, UWORD y) {
 }
 
 void flag(UWORD x, UWORD y) {
+	
 	switch (BOARD(x, y)) {
 		case HIDDEN:
 			BOARD(x, y) = FLAGGED;
@@ -113,27 +117,65 @@ void flag(UWORD x, UWORD y) {
 			BOARD(x, y) = HIDDEN_MINE;
 			break;
 	}
+
+}
+
+void start() {
+
+	UBYTE i, j;
+	UWORD k, l;
+
+	initrand(clock());
+
+	for (i = 0; i < 3; i++) {
+		for (j = 0; j < 3; j++) {
+			k = playerX + i - 1;
+			l = playerY + j - 1;
+			if (!IS_EDGE(k, l)) {
+				BOARD(k, l) = HIDDEN_MINE;
+			}
+		}
+	}
+
+	plantMines();
+	
+	for (i = 0; i < 3; i++) {
+		for (j = 0; j < 3; j++) {
+			k = playerX + i - 1;
+			l = playerY + j - 1;
+			if (!IS_EDGE(k, l)) {
+				BOARD(k, l) = HIDDEN;
+			}
+		}
+	}
+	
+	reveal(playerX, playerY);
+	started = 1;
+
 }
 
 void handleInput() {
 
-	if (P(J_UP)) {
+	if (P(J_UP) && playerY > 0) {
 		playerY--;
 	}
-	if (P(J_DOWN)) {
+	if (P(J_DOWN) && playerY < height - 1) {
 		playerY++;
 	}
-	if (P(J_LEFT)) {
+	if (P(J_LEFT) && playerX > 0) {
 		playerX--;
 	}
-	if (P(J_RIGHT)) {
+	if (P(J_RIGHT && playerX < width - 1)) {
 		playerX++;
 	}
-	if (P(J_B)) {
+	if (P(J_B) && started) {
 		flag(playerX, playerY);
 	}
-	if (P(J_A)) {
+	if (P(J_A) && started) {
 		reveal(playerX, playerY);
+	}
+	if (P(J_A && !started)) {
+		start();
 	}
 
 	MOVE_SPRITE(0, playerX, playerY);
@@ -144,18 +186,15 @@ void handleInput() {
 
 void main() {
 
-	//UBYTE i, j;
+	started = 0;
 
 	width = 20;
 	height = 18;
-	mines = 50;
+	mines = 75;
 
 	widthheight = width * height;
 
 	board = malloc(widthheight * sizeof(UBYTE));
-
-	waitpad(0xFF);
-	initrand(clock());
 
 	DISPLAY_ON;
 	SHOW_BKG;
@@ -167,13 +206,13 @@ void main() {
 	set_sprite_tile(0, 1);
 	MOVE_SPRITE(0, playerX, playerY);
 
-	plantMines(board, mines);
-
 	DISPLAY(board);
 
 	while (1) {
+
 		waitAndBlink(0);
 		handleInput();
+
 	}
 
 }
