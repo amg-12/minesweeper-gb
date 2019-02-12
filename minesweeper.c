@@ -1,7 +1,8 @@
 #include <gb/gb.h>
 #include <time.h>
 #include <rand.h>
-#include "alpha.c"
+#include "tiles.c"
+#include "selector.c"
 
 #include "C:\gbdk\libc\malloc.c" // gbdk is very broken
 
@@ -13,7 +14,7 @@
 #define FLAGGED 2
 #define FLAGGED_MINE 3
 #define REVEALED_MINE 4
-#define REVEALED 16
+#define REVEALED 6
 
 UBYTE width;
 UBYTE height;
@@ -160,7 +161,8 @@ void main() {
 	SHOW_BKG;
 	SHOW_SPRITES;
 
-	set_bkg_data(0, 63, alpha);
+	set_bkg_data(0, 14, tiles);
+	set_sprite_data(1, 1, selector);
 
 	set_sprite_tile(0, 1);
 	MOVE_SPRITE(0, playerX, playerY);
