@@ -1,8 +1,8 @@
 #include <gb/gb.h>
 #include <time.h>
 #include <rand.h>
-#include "tiles.c"
-#include "selector.c"
+#include "assets/tiles.c"
+#include "assets/selector.c"
 
 #include "C:\gbdk\libc\malloc.c" // gbdk is very broken
 
@@ -190,7 +190,7 @@ void main() {
 
 	width = 20;
 	height = 18;
-	mines = 75;
+	mines = 72;
 
 	widthheight = width * height;
 
@@ -200,7 +200,7 @@ void main() {
 	SHOW_BKG;
 	SHOW_SPRITES;
 
-	set_bkg_data(0, 14, tiles);
+	set_bkg_data(0, 15, tiles);
 	set_sprite_data(1, 1, selector);
 
 	set_sprite_tile(0, 1);
